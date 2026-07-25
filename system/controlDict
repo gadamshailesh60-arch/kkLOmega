@@ -1,0 +1,120 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solver          incompressibleFluid;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         400;
+
+deltaT          1;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1.0;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+//adjustTimeStep yes;
+
+maxCo  0.95;
+
+
+
+// ************************************************************************* //
+functions
+{  
+    forces_airfoil
+      {
+          #include "forces"
+      }
+    
+    fieldAverage
+      {
+         #include "Avg"
+      }
+ /*   wallShearStress1
+    {
+        type            wallShearStress;
+        libs            ("fieldFunctionObjects");
+        patches         (airfoil);
+        writeControl    writeTime;
+    }
+*/
+    // --- 1. Compute Pressure Coefficient (Cp) ---
+    pressureCoeff
+    {
+        type            pressure;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        pInf            0;
+        UInf            (1 0 0);
+        rhoInf          1;
+        
+        // Tells OpenFOAM to compute the Cp field coefficient
+        calcTotal       no;
+        calcCoeff       yes;
+    }
+
+    // --- 2. Compute Wall Shear Stress (For calculating Cf) ---
+    wallShearStress1
+    {
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        patches         (airfoil);
+        writeControl    writeTime;
+    }
+
+    // --- 3. Compute Total Turbulence Kinetic Energy (k = kt + kl) ---
+    calculateTotalK
+    {
+        type            add;
+        libs            ("libfieldFunctionObjects.so");
+        fields          (kt kl);
+        result          k;
+        writeControl    writeTime;
+    }
+
+    yPlus_evaluation
+      {
+        // Type of function object
+        type            yPlus;
+        
+        // Where to load it from
+        libs            ("libfieldFunctionObjects.so");
+        
+        // When to execute (matches your simulation write interval)
+        writeControl    writeTime;
+        
+        // The specific wall patches to calculate y+ on
+        patches         (airfoil); 
+      }
+}

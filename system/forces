@@ -1,0 +1,34 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------*/
+
+type            forceCoeffs;
+libs            ("libforces.so");
+
+patches         (airfoil);       // 1. Matches your airfoil patch name
+p               p;
+U               U;
+rho             rhoInf;          // Incompressible solver standard
+rhoInf          1;             // Kinematic density (1.0 for simpleFoam)
+
+// --- Explicit Reference Parameters (Bypassing projArea) ---
+lRef            1.0;             // Airfoil Chord Length (meters)
+Aref            0.1;            // Chord Length (1.0) * Z-thickness (0.05)
+UInf            (1 0 0);        // Freestream velocity vector
+CofR            (0 0 0); // Aerodynamic center coordinate
+magUInf         1;
+// --- Direction Vectors ---
+dragDir         (1 0 0);         // Flow travels along X-axis
+liftDir         (0 1 0);         // Lift force acts along Y-axis
+pitchAxis       (0 0 1);         // Pitching axis is out-of-plane (Z-axis)
+
+// --- Controls ---
+log             true;
+writeControl    timeStep;
+writeInterval   1;
+
+// ************************************************************************* //

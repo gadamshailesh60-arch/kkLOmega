@@ -1,0 +1,25 @@
+        type            fieldAverage;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        timeStart       2; // Wait until initial transient flow washes out before averaging
+        fields
+        (
+            U
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+            p
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+            k
+            {
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }
+        );
